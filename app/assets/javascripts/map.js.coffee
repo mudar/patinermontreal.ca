@@ -188,21 +188,18 @@ $ ->
     return
 
   # Create map.
-  Map = new L.Map 'map',
-    center: new L.LatLng(45.53, -73.63)
+  Map = new mapboxgl.Map 
+    container: 'map'
+    style: 'https://maps.tilehosting.com/c/c7383db3-56b0-4440-8cd6-cfba2fc00f4d/styles/basic/style.json?key=ACuPrAxNTUSCVDAX6MAv'
+    center: [-73.63,45.53]
     zoom: 13
-    minZoom: 11
-    maxZoom: 18
-    maxBounds: L.latLngBounds(L.latLng(45.170459, -74.447699), L.latLng(46.035873, -73.147435)) 
+    minzoom: 11
+    maxzoom: 18
+    maxBounds: [[-74.447699, 45.170459], [-73.147435, 46.035873]]
+    bearing: -34
 
   tonerUrl = "http://{S}tile.stamen.com/toner-lite/{Z}/{X}/{Y}.png";
   tilesUrl = tonerUrl.replace(/({[A-Z]})/g, (s) -> s.toLowerCase());
-  
-  basemap = new L.tileLayer(tilesUrl, {
-    subdomains: ['','a.','b.','c.','d.'],
-    type: 'png',
-    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
-  }).addTo(Map);
 
   # Define models.
   Rink = Backbone.Model.extend
