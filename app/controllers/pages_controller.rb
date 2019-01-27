@@ -33,6 +33,9 @@ class PagesController < ApplicationController
           },
         })
       end
+      format.geojson do
+        render json: { "type": "FeatureCollection", "features": Patinoire.all.as_json( geojson: true ) }
+      end
     end
   end
 

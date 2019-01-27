@@ -83,6 +83,14 @@ class Patinoire < ActiveRecord::Base
     (lat - a).abs < 0.002 && (lng - b).abs < 0.002
   end
 
+  def as_json(options)
+    if options[:geojson]
+      to_geojson
+    else
+      super(options)
+    end
+  end
+
 private
   PREPOSITIONS = /\A(de la|de|des|du)\b/i
 
@@ -125,5 +133,28 @@ private
     if parc && parc[PREPOSITIONS]
       parc[PREPOSITIONS] = parc[PREPOSITIONS].downcase
     end
+  end
+
+  def to_geojson
+    { :type => "Feature",
+      :properties => { :id => id.to_s,
+                       :nom => nom,
+                       :parc => parc,
+                       :slug => slug,
+                       :genre => genre,
+                       :desc => description,
+                       :adresse => adresse,
+                       :tel => tel,
+                       :arrondissement => { :id => arrondissement.id.to_s,
+                                            :nom => arrondissement.nom_arr,
+                                            :cle => arrondissement.cle,
+                                            :date_maj => arrondissement.date_maj },
+                       :conditions => { :desc => condition,
+                                        :ouvert => ouvert,
+                                        :deblaye => deblaye && ouvert,
+                                        :arrose => arrose && ouvert,
+                                        :resurface => resurface && ouvert },
+                       },
+      :geometry => { :type => "Point", :coordinates => [lng, lat] } }
   end
 end

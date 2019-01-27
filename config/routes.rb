@@ -1,5 +1,6 @@
 PatinerMontreal::Application.routes.draw do
   match 'data' => 'pages#data', :via => [:get]
+  match 'api/rinks' => 'pages#data', :format => [:geojson], :via => [:get]
   match 'conditions' => 'pages#conditions', :via => [:get]
   match 'channel' => 'pages#channel', :via => [:get]
   %w(favorites favories f f/*filters rinks/:id patinoires/:id).each do |path|
