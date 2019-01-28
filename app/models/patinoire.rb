@@ -136,25 +136,32 @@ private
   end
 
   def to_geojson
-    { :type => "Feature",
-      :properties => { :id => id.to_s,
-                       :nom => nom,
-                       :parc => parc,
-                       :slug => slug,
-                       :genre => genre,
-                       :desc => description,
-                       :adresse => adresse,
-                       :tel => tel,
-                       :arrondissement => { :id => arrondissement.id.to_s,
-                                            :nom => arrondissement.nom_arr,
-                                            :cle => arrondissement.cle,
-                                            :date_maj => arrondissement.date_maj },
-                       :conditions => { :desc => condition,
-                                        :ouvert => ouvert,
-                                        :deblaye => deblaye && ouvert,
-                                        :arrose => arrose && ouvert,
-                                        :resurface => resurface && ouvert },
-                       },
-      :geometry => { :type => "Point", :coordinates => [lng, lat] } }
+    conds = case condition
+      when nil
+          nil
+      else
+        { :desc => condition,
+          :ouvert => ouvert,
+          :deblaye => deblaye && ouvert,
+          :arrose => arrose && ouvert,
+          :resurface => resurface && ouvert,
+          :date_maj => arrondissement.date_maj }
+      end
+
+    return { :type => "Feature",
+             :properties => { :id => id.to_s,
+                              :nom => nom,
+                              :parc => parc,
+                              :slug => slug,
+                              :genre => genre,
+                              :desc => description,
+                              :adresse => adresse,
+                              :tel => tel,
+                              :arrondissement => { :id => arrondissement.id.to_s,
+                                                   # :cle => arrondissement.cle,
+                                                   :nom => arrondissement.nom_arr },
+                              :conditions => conds },
+             :geometry => { :type => "Point", :coordinates => [lng, lat] }
+           }
   end
 end

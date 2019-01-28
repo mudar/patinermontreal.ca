@@ -198,9 +198,6 @@ $ ->
     maxBounds: [[-74.447699, 45.170459], [-73.147435, 46.035873]]
     bearing: -34
 
-  tonerUrl = "http://{S}tile.stamen.com/toner-lite/{Z}/{X}/{Y}.png";
-  tilesUrl = tonerUrl.replace(/({[A-Z]})/g, (s) -> s.toLowerCase());
-
   # Define models.
   Rink = Backbone.Model.extend
     # @note +defaults+ doesn't have access to model attributes or collection.
@@ -322,6 +319,10 @@ $ ->
   Map.on 'popupclose', (event) ->
     unless Options.get 'openingPopup'
       Backbone.history.navigate Options.get('beforePopup'), true
+
+  Map.on 'load', (event) ->
+    console.log("map loaded ready")
+    Map.addSource("route", { type: "geojson", data: geojson } )
 
   # A view for the primary buttons.
   # @expects a RinkSet collection
@@ -505,7 +506,7 @@ $ ->
 
   # Seed collection.
   window.Rinks = new RinkSet
-  Rinks.reset json
+  Rinks.reset geojson
 
   # Instantiate routes.
   Routes = new Router
