@@ -331,17 +331,18 @@ $ ->
       'source': 'patinoires'
       'layout':
         'icon-allow-overlap': true
+        # icon-image refers to sprite images, defined in the mapboxgl style.
         'icon-image': [
           'concat'
-          # Concat 3 elements: genre, "-", condition
+          # Concat 3 elements: genre, "-" and conditional case result. ex: PSE-on
           ['get', 'genre']
           '-'
           [
             'case'
-            # Add "na" suffix for null conditions, else check "conditions.ouvert" boolean value
+            # Add "na" suffix for null conditions, else check conditions.ouvert boolean value
             ['==', ['get', 'conditions'], null]
             'na'
-            # Add "on" suffix when true, else use "off"
+            # Add "on" suffix when conditions.ouvert is true, else add "off" suffix
             ['get', 'ouvert', ['object', ['get', 'conditions']]]
             'on'
             'off'
