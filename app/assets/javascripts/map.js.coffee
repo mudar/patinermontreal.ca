@@ -190,7 +190,8 @@ $ ->
   # Create map.
   Map = new mapboxgl.Map 
     container: 'map'
-    style: 'https://maps.tilehosting.com/c/c7383db3-56b0-4440-8cd6-cfba2fc00f4d/styles/basic/style.json?key=ACuPrAxNTUSCVDAX6MAv'
+    style: '/assets/maptiler-style.json'
+#     sprite: '/assets/mapboxgl-sprite'
     center: [-73.63,45.53]
     zoom: 13
     minzoom: 11
@@ -321,8 +322,31 @@ $ ->
       Backbone.history.navigate Options.get('beforePopup'), true
 
   Map.on 'load', (event) ->
-    console.log("map loaded ready")
-    Map.addSource("route", { type: "geojson", data: geojson } )
+    Map.addSource 'patinoires',
+      type: 'geojson'
+      data: geojson
+    Map.addLayer
+      'id': 'points'
+      'type': 'symbol'
+      'source': 'patinoires'
+      'layout':
+        'icon-allow-overlap': true
+        'icon-image': [
+          'concat'
+          # Concat 3 elements: genre, "-", condition
+          ['get', 'genre']
+          '-'
+          [
+            'case'
+            # Add "na" suffix for null conditions, else check "conditions.ouvert" boolean value
+            ['==', ['get', 'conditions'], null]
+            'na'
+            # Add "on" suffix when true, else use "off"
+            ['get', 'ouvert', ['object', ['get', 'conditions']]]
+            'on'
+            'off'
+          ]
+        ]
 
   # A view for the primary buttons.
   # @expects a RinkSet collection

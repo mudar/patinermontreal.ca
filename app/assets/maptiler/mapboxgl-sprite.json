@@ -1,0 +1,65 @@
+{
+  "PSE-na": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 0,
+    "y": 0
+  },
+  "PSE-off": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 28,
+    "y": 0
+  },
+  "PSE-on": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 56,
+    "y": 0
+  },
+  "PP-na": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 0,
+    "y": 28
+  },
+  "PP-off": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 28,
+    "y": 28
+  },
+  "PP-on": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 56,
+    "y": 28
+  },
+  "PPL-na": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 0,
+    "y": 56
+  },
+    "PPL-off": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 28,
+    "y": 56
+  },
+    "PPL-on": {
+    "height": 28,
+    "pixelRatio": 1,
+    "width": 28,
+    "x": 56,
+    "y": 56
+  }
+}
