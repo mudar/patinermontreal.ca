@@ -218,7 +218,9 @@ body {
   margin-top: $sidebar-height;
   margin-left: 20px;
 }
-.leaflet-popup-content-wrapper {
+.mapboxgl-popup-content {
+  padding: 0 0 5px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.4);
   @include border-radius(4px);
 }
 
@@ -337,6 +339,10 @@ body {
 
 // Map -----------------------------------------------------------------
 #rink-info {
+  .rink-body {
+    padding: 15px 20px
+  }
+
   p {
     margin: 0;
   }
@@ -355,7 +361,7 @@ body {
     padding: 0 20px 0 10px;
     line-height: 45px;
     height: 45px;
-    margin: -14px -20px 15px;
+    margin: 0;
     color: #fff;
     background-color: #428bca;
     font-weight: normal;

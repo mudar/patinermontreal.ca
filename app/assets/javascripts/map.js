@@ -227,21 +227,27 @@
     map.addControl(new mapboxgl.NavigationControl, 'top-left');
 
     var FeatureMarkerView = Backbone.View.extend({
+      template: _.template($('#popup-template').html()),
+
       initialize: function() {
+        // Deserialize attributes correctly
         this.attributes.arrondissement = JSON.parse(this.attributes.arrondissement)
         this.attributes.conditions = JSON.parse(this.attributes.conditions)
         if (!JSON.parse(this.attributes.tel)) {
           this.attributes.tel = null
         }
+        // Build rink URL, for twitter sharing
+        this.attributes.url = t('rinks_url', {
+          id: this.attributes.id,
+          slug: this.attributes.slug
+        })
+
         // TODO
         this.attributes.favorite = false
-        this.attributes.url = "TODO"
       },
 
-      template: _.template($('#popup-template').html()),
-
       render: function() {
-        this.$el.html(this.template(this.attributes));
+        this.setElement(this.template(this.attributes))
         return this;
       }
     });
@@ -249,6 +255,8 @@
     FeatureModel = Backbone.Model.extend({});
 
     map.on('click', 'rinks', function(e) {
+      $('#social .navbar').slideUp('fast')
+
       var features = map.queryRenderedFeatures(e.point);
       //     console.log(features.properties)
       var coordinates = e.features[0].geometry.coordinates.slice();
