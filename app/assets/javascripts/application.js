@@ -10,7 +10,7 @@
 //= require underscore-1.5.0.min
 //= require backbone-1.1.2.min
 //= require backbone.localStorage-1.1.13.min
-//= require mapbox-gl-0.52.0.js
+//= require mapbox-gl-0.53.0.js
 //= require iso8601.min
 //= require jquery.smartbanner.min
 //= require promise.min
