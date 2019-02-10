@@ -212,13 +212,11 @@ body {
   margin: 0;
 }
 
-// Leaflet ---------------------------------------------------------------------
+// Mapbox GL ---------------------------------------------------------------------
 
-.leaflet-left .leaflet-control {
-  margin-left: 20px;
-}
-.leaflet-top .leaflet-control-zoom {
+.mapboxgl-ctrl-top-left {
   margin-top: $sidebar-height;
+  margin-left: 20px;
 }
 .leaflet-popup-content-wrapper {
   @include border-radius(4px);
@@ -505,14 +503,12 @@ body {
     top: $sidebar-height + 30;
     right: 40px;
   }
-  .leaflet-top .leaflet-control-zoom {
-    margin-top: $sidebar-height + 30;
+  .mapboxgl-ctrl-top-left {
+    margin-top: $sidebar-height + 20;
+    margin-left: 30px;
   }
   #nav-twitter {
     display: none;
-  }
-  .leaflet-left .leaflet-control {
-    margin-left: 35px;
   }
   #weather .modal-dialog {
     width: 730px;
@@ -687,8 +683,9 @@ body {
   #top-nav {
     display: none;
   }
-  .leaflet-top .leaflet-control-zoom {
+  .mapboxgl-ctrl-top-left {
     margin-top: 15px;
+/*     margin-left: 35px; */
   }
 }
 

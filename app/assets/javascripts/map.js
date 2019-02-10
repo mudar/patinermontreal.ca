@@ -1,6 +1,11 @@
 (function() {
   var I18n, other_domain, other_locale,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) {
+      for (var i = 0, l = this.length; i < l; i++) {
+        if (i in this && this[i] === item) return i;
+      }
+      return -1;
+    };
 
   $.fn.hasAttr = function(attr) {
     return _.any(this, function(el) {
@@ -173,7 +178,7 @@
   })(Backbone.History.prototype.navigate);
 
   $(function() {
-    var ControlView, ControlsView, Map, MarkerView, MarkersView, Options, Rink, RinkSet, Router, Routes, Singleton, controls, markers;
+    var ControlView, ControlsView, map, Options, Rink, RinkSet, Router, Routes, Singleton, controls;
     window.debug = env === 'development';
     $('.control').tooltip();
     $.smartbanner({
@@ -199,16 +204,80 @@
       e.preventDefault();
       $('#social .navbar').slideToggle('fast');
     });
-    Map = new mapboxgl.Map({
+    map = new mapboxgl.Map({
       container: 'map',
       style: '/assets/maptiler-style.json',
       center: [-73.63, 45.53],
       zoom: 13,
       minzoom: 11,
       maxzoom: 18,
-      maxBounds: [[-74.447699, 45.170459], [-73.147435, 46.035873]],
+      maxBounds: [
+        [-74.447699, 45.170459],
+        [-73.147435, 46.035873]
+      ],
       bearing: -34
     });
+    map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      }), 'top-left');
+    map.addControl(new mapboxgl.NavigationControl, 'top-left');
+
+    var FeatureMarkerView = Backbone.View.extend({
+      initialize: function() {
+        this.attributes.arrondissement = JSON.parse(this.attributes.arrondissement)
+        this.attributes.conditions = JSON.parse(this.attributes.conditions)
+        if (!JSON.parse(this.attributes.tel)) {
+          this.attributes.tel = null
+        }
+        // TODO
+        this.attributes.favorite = false
+        this.attributes.url = "TODO"
+      },
+
+      template: _.template($('#popup-template').html()),
+
+      render: function() {
+        this.$el.html(this.template(this.attributes));
+        return this;
+      }
+    });
+
+    FeatureModel = Backbone.Model.extend({});
+
+    map.on('click', 'rinks', function(e) {
+      var features = map.queryRenderedFeatures(e.point);
+      //     console.log(features.properties)
+      var coordinates = e.features[0].geometry.coordinates.slice();
+      map.flyTo({
+        center: e.features[0].geometry.coordinates
+      });
+
+      var featureModel = new FeatureModel(e.features[0].properties)
+      var featureMarkerView = new FeatureMarkerView(featureModel)
+      var render = featureMarkerView.render()
+      //     console.log(render)
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      new mapboxgl.Popup({
+          anchor: "bottom",
+          closeButton: false,
+          offset: [0, -15]
+        })
+        .setLngLat(coordinates)
+        .setHTML(render.el.outerHTML)
+        // .setHTML(e.features[0].properties.conditions)
+        .addTo(map);
+    });
+
     Rink = Backbone.Model.extend({
       initialize: function(attributes) {
         if ('C' === this.get('genre')) {
@@ -288,100 +357,20 @@
         });
       }
     });
-    MarkersView = Backbone.View.extend({
-      initialize: function() {
-        return this.collection.each(function(model) {
-          return model.view = new MarkerView({
-            model: model
-          });
-        });
-      }
-    });
-    MarkerView = Backbone.View.extend({
-      template: _.template($('#popup-template').html()),
-      initialize: function() {
-        var icon, offset, state;
-        offset = new L.Point(0, -10);
-        state = this.model.get('ouvert') ? 'on' : this.model.get('condition') ? 'off' : 'na';
-        icon = L.Icon.extend({
-          options: {
-            iconUrl: "/assets/" + (this.model.get('genre')) + "_" + state + ".png",
-            iconRetinaUrl: "/assets/" + (this.model.get('genre')) + "_" + state + "_2x.png",
-            shadowUrl: "/assets/" + (this.model.get('genre')) + "_shadow.png",
-            iconSize: new L.Point(28, 28),
-            shadowSize: new L.Point(34, 26),
-            iconAnchor: new L.Point(15, 27),
-            shadowAnchor: [13, 22],
-            popupAnchor: offset
-          }
-        });
-        this.marker = new L.Marker(new L.LatLng(this.model.get('lat'), this.model.get('lng')), {
-          icon: new icon
-        });
-        this.marker._popup = new L.Popup({
-          offset: offset,
-          autoPan: true,
-          autoPanPaddingTopLeft: [50, 100],
-          autoPanPaddingBottomRight: [70, 40],
-          closeButton: false
-        }, this.marker);
-        this.marker._popup.setContent(this.template(this.model.toJSON()));
-        this.marker._popup._initLayout();
-        $(this.marker._popup._contentNode).delegate('.favorite', 'click.delegateEvents' + this.cid, _.bind(function() {
-          return this.model.toggle();
-        }, this));
-        this.marker.on('click', function() {
-          if (!this.rinkUrl()) {
-            Options.save({
-              beforePopup: this.currentUrl()
-            });
-          }
-          return Backbone.history.navigate(this.model.get('url'), true);
-        }, this);
-        this.model.bind('change:favorite', function() {
-          this.marker._popup.setContent(this.template(this.model.toJSON()));
-          if (twttr.widgets) {
-            return twttr.widgets.load();
-          }
-        }, this);
-        return this.model.bind('change:visible', this.render, this);
-      },
-      render: function() {
-        if (this.model.get('visible')) {
-          Map.addLayer(this.marker);
-        } else {
-          Map.removeLayer(this.marker);
-        }
-        return this;
-      },
-      openPopup: function() {
-        Options.save({
-          openingPopup: true
-        });
-        this.marker.openPopup();
-        Options.save({
-          openingPopup: false
-        });
-        if (twttr.widgets) {
-          twttr.widgets.load();
-        }
-        return $('#social .navbar').slideUp();
-      }
-    });
-    Map.on('popupclose', function(event) {
+    map.on('popupclose', function(event) {
       if (!Options.get('openingPopup')) {
         return Backbone.history.navigate(Options.get('beforePopup'), true);
       }
     });
-    Map.on('load', function(event) {
-      Map.addSource('patinoires', {
+    map.on('load', function(event) {
+      map.addSource('rinks-source', {
         type: 'geojson',
         data: geojson
       });
-      return Map.addLayer({
-        'id': 'points',
+      return map.addLayer({
+        'id': 'rinks',
         'type': 'symbol',
-        'source': 'patinoires',
+        'source': 'rinks-source',
         'layout': {
           'icon-allow-overlap': true,
           'icon-image': ['concat', ['get', 'genre'], '-', ['case', ['==', ['get', 'conditions'], null], 'na', ['get', 'ouvert', ['object', ['get', 'conditions']]], 'on', 'off']]
@@ -437,7 +426,7 @@
       },
       toggle: function(state) {
         var filters, kinds, ref, ref1, statuses;
-        Map.closePopup();
+        map.closePopup();
         if (this.type != null) {
           ref = this.filterUrl() ? this.fromUrl(this.currentUrl()) : this.fromUI(), kinds = ref[0], statuses = ref[1];
           if (this.type === 'kinds') {
@@ -600,16 +589,12 @@
       beforePopup: Helpers.rootUrl(),
       openingPopup: false
     });
-    _.each([MarkersView, MarkerView, ControlsView, ControlView, Router], function(klass) {
+    _.each([ControlsView, ControlView, Router], function(klass) {
       return _.extend(klass.prototype, Helpers);
     });
     window.Rinks = new RinkSet;
     Rinks.reset(geojson);
     Routes = new Router({
-      collection: Rinks
-    });
-    markers = new MarkersView({
-      el: '#map',
       collection: Rinks
     });
     controls = new ControlsView({
@@ -619,45 +604,6 @@
     Backbone.history.start({
       pushState: true
     });
-    Map.on('locationfound', function(event) {
-      var locationIcon, marker, radius;
-      radius = event.accuracy / 2;
-      if (radius < 1000) {
-        locationIcon = L.Icon.extend({
-          options: {
-            iconUrl: "/assets/marker-icon.png",
-            iconRetinaUrl: "/assets/marker-icon-2x.png",
-            shadowUrl: "/assets/marker-shadow.png",
-            iconSize: [25, 41],
-            shadowSize: [33, 31],
-            iconAnchor: [12, 41],
-            shadowAnchor: [10, 31],
-            popupAnchor: [0, -46]
-          }
-        });
-        marker = new L.Marker(event.latlng, {
-          icon: new locationIcon
-        });
-        Map.addLayer(marker);
-        marker.bindPopup(t('accuracy', {
-          radius: radius
-        }));
-        return Map.addLayer(new L.Circle(event.latlng, radius));
-      }
-    });
-    Map.on('locationerror', function(event) {
-      if (window.debug) {
-        return console.log(event.message);
-      }
-    });
-    if (Helpers.rinkUrl()) {
-      return Map.locate();
-    } else {
-      return Map.locate({
-        setView: true,
-        zoom: 13
-      });
-    }
   });
 
 }).call(this);

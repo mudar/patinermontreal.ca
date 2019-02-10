@@ -165,34 +165,15 @@
         <i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-heart fa-stack-1x fa-inverse"></i><i class="fa fa-heart-o fa-stack-1x"></i>
       </a>
       <h3><span class="icon <%= genre %>" title="<%= t('_' + genre) %>"></span><%= parc %></h3>
-      <h4><%= t(description) %></h4>
+      <h4><%= t(desc) %></h4>
       <% if (adresse) { %>
         <div class="address">
           <%= adresse %>
           <div class="borough"><%= arrondissement.nom_arr %></div>
-          <% if (tel) { %><div><a class="phone" href="tel:<%= tel %>"><span class="fa fa-phone"></span><%= Helpers.numberToPhone(tel, {extension: ext}) %></a></div><% } %>
+          <% if (tel != null) { %><div><a class="phone" href="tel:<%= tel %>"><span class="fa fa-phone"></span><%= Helpers.numberToPhone(tel, "") %></a></div><% } %>
         </div>
       <% } %>
-      <% if (ouvert === true) { %>
-        <p class="condition">
-        <% if (condition === 'N/A') { %>
-          <span class="desc"><%= t('unknown_condition') %></span>
-        <% } else { %>
-          <span class="desc"><%= t('condition', {condition: t(condition)}) %></span>
-          <span class="update-date">(<%= format_date(arrondissement.date_maj) %>)</span>
-        <% } %>
-        </p>
-        <div class="statuses">
-          <span title="<%= t('cleared') %>" class="icon deblaye <%= ( deblaye ? 'active' : '' ) %>"></span>
-          <span title="<%= t('flooded') %>" class="icon arrose <%= ( arrose ? 'active' : '' ) %>"></span>
-          <span title="<%= t('resurfaced') %>" class="icon resurface <%= ( resurface ? 'active' : '' ) %>"></span>
-        </div>
-      <% } else if (condition) { %>
-        <p class="condition">
-          <span class="desc"><%= t('closed') %></span>
-          <span class="update-date">(<%= format_date(arrondissement.date_maj) %>)</span>
-        </p>
-      <% } else { %>
+      <% if (!conditions) { %>
         <p class="condition unknown">
           <%= t('unknown_condition') %>
         </p>
@@ -205,8 +186,28 @@
             </div>
           </div>
         <% } %>
+      <% } else if (conditions.ouvert) { %>
+        <p class="condition">
+        <% if (conditions.desc === 'N/A') { %>
+          <span class="desc"><%= t('unknown_condition') %></span>
+        <% } else { %>
+          <span class="desc"><%= t('condition', {condition: t(conditions.desc)}) %></span>
+          <span class="update-date">(<%= format_date(conditions.date_maj) %>)</span>
+        <% } %>
+        </p>
+        <div class="statuses">
+          <span title="<%= t('cleared') %>" class="icon deblaye <%= ( conditions.deblaye ? 'active' : '' ) %>"></span>
+          <span title="<%= t('flooded') %>" class="icon arrose <%= ( conditions.arrose ? 'active' : '' ) %>"></span>
+          <span title="<%= t('resurfaced') %>" class="icon resurface <%= ( conditions.resurface ? 'active' : '' ) %>"></span>
+        </div>
+      <% } else if (!conditions.ouvert) { %>
+        <p class="condition">
+          <span class="desc"><%= t('closed') %></span>
+          <span class="update-date">(<%= format_date(conditions.date_maj) %>)</span>
+        </p>
       <% } %>
-      <% if (ouvert || !condition) { %>
+
+      <% if (!conditions || conditions.ouvert) { %>
         <hr />
         <div class="call-to-action twitter">
           <p><%= t('explanation') %></p>
