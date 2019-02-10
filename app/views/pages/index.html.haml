@@ -165,9 +165,9 @@
         <a href="#fav" class="fa-stack fa-lg icon favorite <%= ( favorite ? 'active' : '' ) %>" id="favorite-toggle" title="<%= t( favorite ? 'remove_favorite' : 'add_favorite' ) %>">
           <i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-heart fa-stack-1x fa-inverse"></i><i class="fa fa-heart-o fa-stack-1x"></i>
         </a>
-      </div>
-      <div>
         <h3><span class="icon <%= genre %>" title="<%= t('_' + genre) %>"></span><%= parc %></h3>
+      </div>
+      <div class="rink-body">
         <h4><%= t(desc) %></h4>
         <% if (adresse) { %>
           <div class="address">
