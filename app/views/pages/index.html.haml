@@ -209,14 +209,6 @@
             <span class="update-date">(<%= format_date(conditions.date_maj) %>)</span>
           </p>
         <% } %>
-
-        <% if (!conditions || conditions.ouvert) { %>
-          <hr />
-          <div class="call-to-action twitter">
-            <p><%= t('explanation') %></p>
-            <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://patinermontreal.ca/<%= url %>" data-size="medium" data-text="<%= t('tweet_text_' + genre, {park: parc}) %>" data-via="patinermtl" data-lang="<%= locale %>" data-size="large" data-count="none"><%= t('tweet') %></a>
-          </div>
-        <% } %>
       </div>
     </div>
   </script>
